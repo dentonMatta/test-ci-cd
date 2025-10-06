@@ -6,6 +6,12 @@ on:
     branches:
       - main
 
+
+env:
+  DOTNET_VERSION: '8.0.x'  # Define the .NET version to be used in the workflow
+  AZURE_WEBAPP_NAME: 'just-another-web-app'  # Define the Azure Web App name      
+
+
 # Define the jobs that will run as part of this workflow. Only one job and that is to compile the code.
 jobs:
     build:
@@ -20,7 +26,7 @@ jobs:
             - name: Setup .NET
               uses: actions/setup-dotnet@v5
               with:
-                dotnet-version: '8.0.x' # Use the required .NET version
+                dotnet-version: ${{env.DOTNET_VERSION}} # Use the required .NET version
 
             # Restore dependencies
             - name:  Restore dependencies
@@ -33,3 +39,15 @@ jobs:
             # Run automated tests
             - name: Test
               run: dotnet test --no-build --configuration Release
+
+            # Specify the publish step ie where to find the build output
+            - name: Publish
+              run: dotnet publish --no-build --configuration Release --output ./publish  
+
+            # Deploy to Azure Web App
+            - name: Deploy to Azure Web App
+              uses: azure/webapps-deploy@v2
+              with:
+                app-name: ${{env.AZURE_WEBAPP_NAME}} # Replace with your Azure Web App name
+                publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_SECRET }} # Set this secret in your repository settings  
+                package: ./publish
