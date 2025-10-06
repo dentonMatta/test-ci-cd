@@ -1,0 +1,31 @@
+name: Continuous Integration and Deployment
+
+# Specify when this action will run. Here, it runs on every push to the main branch.
+on:
+  push:
+    branches:
+      - main
+
+# Define the jobs that will run as part of this workflow. Only one job and that is to compile the code.
+jobs:
+    build:
+        # select the OS version to run the job on.
+        runs-on: ubuntu-latest
+        # define the steps to be executed as part of the job.
+        steps:
+            - name: Checkout repository 
+              uses: actions/checkout@v5
+
+            # Install particular .NET SDK version 
+            - name: Setup .NET
+              uses: actions/setup-dotnet@v5
+              with:
+                dotnet-version: '8.0.x' # Use the required .NET version
+
+            # Restore dependencies
+            - name:  Restore dependencies
+              run: dotnet restore 
+
+            # Build the project
+            - name: Build
+              run: dotnet build --no-restore --configuration Release  
