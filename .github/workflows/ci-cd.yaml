@@ -10,6 +10,7 @@ on:
 env:
   DOTNET_VERSION: '8.0.x'  # Define the .NET version to be used in the workflow
   AZURE_WEBAPP_NAME: 'just-another-web-app'  # Define the Azure Web App name      
+  PUBLISH_DIR: './publish'  # Define the directory where the build output will be published
 
 
 # Define the jobs that will run as part of this workflow. Only one job and that is to compile the code.
@@ -42,7 +43,7 @@ jobs:
 
             # Specify the publish step ie where to find the build output
             - name: Publish
-              run: dotnet publish --no-build --configuration Release --output ./publish  
+              run: dotnet publish --no-build --configuration Release --property:PublishDir=${{ env.PUBLISH_DIR }}
 
             # Deploy to Azure Web App
             - name: Deploy to Azure Web App
@@ -50,4 +51,4 @@ jobs:
               with:
                 app-name: ${{env.AZURE_WEBAPP_NAME}} # Replace with your Azure Web App name
                 publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_SECRET }} # Set this secret in your repository settings  
-                package: ./publish
+                package: ${{ env.PUBLISH_DIR }}  # Use the publish directory defined in the env section
